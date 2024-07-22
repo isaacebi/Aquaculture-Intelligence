@@ -1,7 +1,7 @@
 import os
 
 class GetPath:
-    def __init__(self) -> None:
+    def __init__(self):
         self.current_path = os.getcwd()
 
     def data(self, fileName='data'):
@@ -13,7 +13,7 @@ class GetPath:
 
         print(f"--- Moving Project Path Upward")
         self.current_path = os.path.dirname(self.current_path)
-        self.data()
+        return self.data()
 
 
 if __name__ == "__main__":
