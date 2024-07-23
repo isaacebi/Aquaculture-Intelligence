@@ -17,7 +17,8 @@ from src import GetPath
 class MotionHistoryImage(Dataset):
     def __init__(self, mhi_dir="mhi_right_tail", frame_cutoff=15, experiment="all", pca_model=PCA()):
         # Define directory
-        self.mhi_dir = os.path.join(GetPath().data(), 'preprocess', mhi_dir)
+        # self.mhi_dir = os.path.join(GetPath().data(), 'preprocess', mhi_dir)
+        self.mhi_dir = mhi_dir
         if not os.path.exists(self.mhi_dir):
             print(f"Please check data directory. The expected structured is '<current_folder>/data/preprocessed/{mhi_dir}'")
 
