@@ -105,9 +105,9 @@ class PictureGenerator:
             return False
         
         # Save the frame as an image
-        output_path = os.path.join(self.save_path, f"{condition_level}_{frame_number}")
-        if not os.path.exists(output_path):
-            os.makedirs(output_path)
+        if not os.path.exists(self.save_path):
+            os.makedirs(self.save_path)
+        output_path = os.path.join(self.save_path, f"{condition_level}_{frame_number}.png")
         cv2.imwrite(output_path, frame)
         
         # Release the video capture object
@@ -119,7 +119,7 @@ class PictureGenerator:
 def main():
     # Hard coded path
     DATA_FOLDER = GetPath().data()
-    RANDOM_TIME_FOLDER = os.path.join(DATA_FOLDER, 'random_time')
+    RANDOM_TIME_FOLDER = os.path.join(os.getcwd(), 'data', 'random_time')
     ABN_B1_TIME = os.path.join(RANDOM_TIME_FOLDER, 'abnormal_b1.csv')
     ABN_B2_TIME = os.path.join(RANDOM_TIME_FOLDER, 'abnormal_b2.csv')
     ABN_B3_TIME = os.path.join(RANDOM_TIME_FOLDER, 'abnormal_b3.csv')
@@ -142,10 +142,10 @@ def main():
         )
 
         vid_path = abn_vids[i]
-        dfTemp.apply(lambda x: pic_gen.take_snapshot(
+        dfTemp['random_seconds'].apply(lambda x: pic_gen.take_snapshot(
             video_path=vid_path,
             condition_level=exp_name,
-            time_seconds=x
+            time_seconds=int(x)
         ))
 
         df = pd.concat([df, dfTemp])
@@ -153,7 +153,10 @@ def main():
 
     # History
     file_uuid = str(uuid.uuid4())
-    rt_csv = os.path.join(DATA_FOLDER, 'random_time', f'randomTime_{file_uuid}.csv')
+    rt_folder = os.path.join(DATA_FOLDER, 'random_time')
+    if not os.path.exists(rt_folder):
+        os.makedirs(rt_folder)
+    rt_csv = os.path.join(rt_folder, f'randomTime_{file_uuid}.csv')
     df.to_csv(rt_csv)
 
     return df
