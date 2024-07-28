@@ -41,10 +41,15 @@ def main():
         df['random_time_start'] = gen_mot.motion_time(
             df=df
         )
+        
+        # Time format to seconds, needed as opencv only read seconds
+        df['time_start_seconds'] = df['time_start'].apply(lambda x: pd.Timedelta(x).seconds)
+        df['time_end_seconds'] = df['time_end'].apply(lambda x: pd.Timedelta(x).seconds)
+
         df.apply(lambda x: gen_mot.motion_history_image(
             video_path=VIDEO_PATHS[i],
-            time_start=x['time_start'],
-            time_end=x['time_end'],
+            time_start=x['time_start_seconds'],
+            time_end=x['time_end_seconds'],
             file_name=f"{x['experiment']}_{x['ABN']}"
         ), axis=1)
 
