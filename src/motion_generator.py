@@ -40,7 +40,6 @@ class MotionGenerator:
             file_name='experiment_abn_frame'):
         
         # Open the video file or camera stream
-        print(video_path)
         cap = cv2.VideoCapture(video_path)
         
         # Check if video opened successfully
@@ -52,8 +51,8 @@ class MotionGenerator:
         fps = cap.get(cv2.CAP_PROP_FPS)
         
         # Calculate the frame number based on the time
-        start_frame = int(time_start * fps)
-        end_frame = int(time_end * fps)
+        start_frame = int(round(time_start) * fps)
+        end_frame = int(round(time_end) * fps)
         
         # Set the frame position
         cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
