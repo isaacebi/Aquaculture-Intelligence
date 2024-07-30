@@ -8,7 +8,7 @@ class MotionGenerator:
     def __init__(self, save_path):
         self.save_path = save_path
 
-    def full_motion_time(self, df: pd.DataFrame) -> pd.DataFrame:
+    def random_motion_time(self, df: pd.DataFrame) -> pd.DataFrame:
         # Check if required columns exist
         required_columns = ['time_start', 'time_end']
         missing_columns = [col for col in required_columns if col not in df.columns]
@@ -35,10 +35,10 @@ class MotionGenerator:
     def motion_history_image(
             self, 
             video_path=os.path.join(os.getcwd(), 'data', 'raw', 'sample_test.mp4'), 
-            time_start=1, 
+            time_start=0, 
             time_end=60,
             file_name='experiment_abn_frame'):
-        
+                
         # Open the video file or camera stream
         cap = cv2.VideoCapture(video_path)
         
@@ -49,6 +49,9 @@ class MotionGenerator:
         
         # Get the frames per second (fps) of the video
         fps = cap.get(cv2.CAP_PROP_FPS)
+
+        # Calculate Duration
+        duration = time_end - time_start
         
         # Calculate the frame number based on the time
         start_frame = int(round(time_start) * fps)
@@ -72,10 +75,6 @@ class MotionGenerator:
         # Create a motion history image
         h, w = prev_gray.shape[:2]
         mhi = np.zeros((h, w), dtype=np.float32)
-        
-        # Set MHI duration
-        duration = 0.5  # in seconds
-        max_time = duration * fps
         
         # Initialize the history frame
         history_frame = np.zeros_like(prev_gray, dtype=np.float32)
@@ -120,9 +119,10 @@ class MotionGenerator:
                 prev_gray = gray
         
         # Save the frame as an image
-        if not os.path.exists(self.save_path):
-            os.makedirs(self.save_path)
-        output_path = os.path.join(self.save_path, f"{file_name}_{frame_number}.png")
+        folder_name = f"{self.save_path}_{duration}"
+        if not os.path.exists(folder_name):
+            os.makedirs(folder_name)
+        output_path = os.path.join(folder_name, f"{file_name}_{frame_number}.png")
         cv2.imwrite(output_path, history_display)
         
         # Release resources
@@ -130,5 +130,5 @@ class MotionGenerator:
         cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    gen_mot = MotionGenerator()
+    gen_mot = MotionGenerator(save_path="test")
     gen_mot.motion_history_image()

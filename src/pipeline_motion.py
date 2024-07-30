@@ -14,7 +14,7 @@ except:
 
 
     
-def main():
+def mhi_60s():
     # Hard coded path
     DATA_FOLDER = GetPath().shared_data()
     LOCAL_DATA_FOLDER = GetPath().local_data()
@@ -53,5 +53,41 @@ def main():
             file_name=f"{x['experiment']}_{x['ABN']}"
         ), axis=1)
 
+def mhi_duration(duration: int = 5):
+    # Hard coded path
+    DATA_FOLDER = GetPath().shared_data()
+    LOCAL_DATA_FOLDER = GetPath().local_data()
+
+    RANDOM_TIME_FOLDER = os.path.join(LOCAL_DATA_FOLDER, 'data', 'random_time')
+    ABN_B1_TIME = os.path.join(RANDOM_TIME_FOLDER, 'abnormal_b1.csv')
+    ABN_B2_TIME = os.path.join(RANDOM_TIME_FOLDER, 'abnormal_b2.csv')
+    ABN_B3_TIME = os.path.join(RANDOM_TIME_FOLDER, 'abnormal_b3.csv')
+    OUTPUT_PATH = os.path.join(DATA_FOLDER, 'preprocess', 'mhi')
+
+    # hardcoded path
+    VIDEO_PATHS = GetPath().abnormal_path()
+
+    # Initiate Motion Generator
+    gen_mot = MotionGenerator(save_path=OUTPUT_PATH)
+
+    for i in range(3):
+        exp_name = f"ABN_B{i+1}"
+        df = pd.read_csv(eval(f"ABN_B{i+1}_TIME"))
+        df['experiment'] = exp_name
+        df['random_time_start'] = gen_mot.random_motion_time(
+            df=df
+        )
+        
+        # Time format to seconds, needed as opencv only read seconds
+        df['time_start_seconds'] = df['time_start'].apply(lambda x: pd.Timedelta(x).seconds)
+        df['time_end_seconds'] = df['time_end'].apply(lambda x: pd.Timedelta(x).seconds)
+
+        df.apply(lambda x: gen_mot.motion_history_image(
+            video_path=VIDEO_PATHS[i],
+            time_start=x['time_start_seconds'],
+            time_end=x['time_start_seconds'] + duration,
+            file_name=f"{x['experiment']}_{x['ABN']}"
+        ), axis=1)
+
 if __name__ == "__main__":
-    main()
+    mhi_duration()
