@@ -83,11 +83,19 @@ def mhi_duration(duration: int = 5):
         df['time_end_seconds'] = df['time_end'].apply(lambda x: pd.Timedelta(x).seconds)
 
         df.apply(lambda x: gen_mot.motion_history_image(
-            video_path=VIDEO_PATHS[i],
-            time_start=x['time_start_seconds'],
-            time_end=x['time_start_seconds'] + duration,
+            gray_images=gen_mot.get_frames(
+                video_path=VIDEO_PATHS[i],
+                time_start=x['time_start_seconds'],
+                time_end=x['time_start_seconds'] + duration
+            )[0],
+            duration=duration,
+            end_frame=gen_mot.get_frames(
+                video_path=VIDEO_PATHS[i],
+                time_start=x['time_start_seconds'],
+                time_end=x['time_start_seconds'] + duration
+            )[1],
             file_name=f"{x['experiment']}_{x['ABN']}"
         ), axis=1)
 
 if __name__ == "__main__":
-    mhi_duration()
+    mhi_duration(duration=5)
