@@ -34,7 +34,8 @@ class MotionGenerator:
     
     def get_frames(
             self, 
-            video_path=os.path.join(os.getcwd(), 'data', 'raw', 'sample_test.mp4'), 
+            video_path=os.path.join(os.getcwd(), 'data', 'raw', 'sample_test.mp4'),
+            interval=15, 
             time_start=0, 
             time_end=60):
         
@@ -76,8 +77,9 @@ class MotionGenerator:
             # Convert the frame to grayscale
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-            # Collect frames
-            frames.append(gray)
+            # Collect frames every interval
+            if frame_number % interval == 0:
+                frames.append(gray)
 
         return frames, end_frame
         
