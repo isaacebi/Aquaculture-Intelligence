@@ -8,7 +8,7 @@ class MotionGenerator:
     def __init__(self, save_path):
         self.save_path = save_path
 
-    def motion_time(self, df: pd.DataFrame) -> pd.DataFrame:
+    def full_motion_time(self, df: pd.DataFrame) -> pd.DataFrame:
         # Check if required columns exist
         required_columns = ['time_start', 'time_end']
         missing_columns = [col for col in required_columns if col not in df.columns]

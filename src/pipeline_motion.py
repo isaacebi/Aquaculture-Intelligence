@@ -38,7 +38,7 @@ def main():
         exp_name = f"ABN_B{i+1}"
         df = pd.read_csv(eval(f"ABN_B{i+1}_TIME"))
         df['experiment'] = exp_name
-        df['random_time_start'] = gen_mot.motion_time(
+        df['random_time_start'] = gen_mot.full_motion_time(
             df=df
         )
         
