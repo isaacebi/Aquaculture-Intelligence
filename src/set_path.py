@@ -16,7 +16,7 @@ class GetPath:
         
         print(f"--- Moving Project Path Upward")
         self.shared_path = os.path.dirname(self.shared_path)
-        return self.local_data()
+        return self.shared_data()
     
     def abnormal_path(self) -> list:
         # TODO: File structure need to be change in the future
