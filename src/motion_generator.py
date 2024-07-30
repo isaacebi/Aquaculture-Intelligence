@@ -31,14 +31,13 @@ class MotionGenerator:
         df['random_time'] = pd.to_datetime(df["random_seconds"], unit='s').dt.strftime("%H:%M:%S")
         
         return df['random_time']
-
-    def motion_history_image(
+    
+    def get_frames(
             self, 
             video_path=os.path.join(os.getcwd(), 'data', 'raw', 'sample_test.mp4'), 
             time_start=0, 
-            time_end=60,
-            file_name='experiment_abn_frame'):
-                
+            time_end=60):
+        
         # Open the video file or camera stream
         cap = cv2.VideoCapture(video_path)
         
@@ -49,9 +48,6 @@ class MotionGenerator:
         
         # Get the frames per second (fps) of the video
         fps = cap.get(cv2.CAP_PROP_FPS)
-
-        # Calculate Duration
-        duration = time_end - time_start
         
         # Calculate the frame number based on the time
         start_frame = int(round(time_start) * fps)
@@ -59,76 +55,75 @@ class MotionGenerator:
         
         # Set the frame position
         cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
-        
-        # Read the first frame
-        ret, prev_frame = cap.read()
+
+        # Read set frame
+        ret, frame = cap.read()
         
         # Check if frame was read successfully
         if not ret:
             print(f"Error: Could not read frame at {time_start} seconds.")
             cap.release()
             return False
-        
-        # Convert the frame to grayscale
-        prev_gray = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
-        
-        # Create a motion history image
-        h, w = prev_gray.shape[:2]
-        mhi = np.zeros((h, w), dtype=np.float32)
-        
-        # Initialize the history frame
-        history_frame = np.zeros_like(prev_gray, dtype=np.float32)
 
-        timestamp = 0
+        frames = []
 
         for frame_number in range(start_frame + 1, end_frame):
             # Read the next frame
             ret, frame = cap.read()
             if not ret:
                 break
-
-            if frame_number % 15 == 0:
-            
-                # Convert the frame to grayscale
-                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                
-                # Calculate the absolute difference between frames
-                frame_diff = cv2.absdiff(gray, prev_gray)
-                
-                # Threshold the difference
-                _, motion_mask = cv2.threshold(frame_diff, 32, 1, cv2.THRESH_BINARY)
-
-                timestamp += 1
-                
-                # Update history frame
-                # history_frame = cv2.add(history_frame, motion_mask.astype(np.float32))
-                cv2.motempl.updateMotionHistory(motion_mask, history_frame, timestamp, time_end-time_start)
-                
-                # Normalize history frame
-                history_norm = cv2.normalize(history_frame, None, 0, 255, cv2.NORM_MINMAX)
-                
-                # Convert to uint8 for display
-                history_display = history_norm.astype(np.uint8)
-                
-                # Display the result (optional)
-                # cv2.imshow('Motion History Image', history_display)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
-                
-                # Update previous frame
-                prev_gray = gray
         
+            # Convert the frame to grayscale
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+            # Collect frames
+            frames.append(gray)
+
+        return frames, end_frame
+        
+
+    def motion_history_image(
+            self, 
+            gray_images: list,
+            duration: int,
+            end_frame: int,
+            file_name='experiment_abn_frame'):
+        
+        mhi = np.zeros_like(gray_images[0], dtype=np.uint8)
+
+        steps_brightness = 100 // len(gray_images)
+        tau = steps_brightness
+        
+        for i in range(len(gray_images)-1):
+            # Frame subtraction
+            frame = cv2.subtract(gray_images[i], gray_images[i+1])
+
+            # Blurring
+            frame = cv2.GaussianBlur(frame, (5,5), 0)
+
+            # Threshold differences
+            _, frame = cv2.threshold(frame, 25, 255, cv2.THRESH_BINARY)
+
+            # Draw to blank canvas
+            mhi = cv2.add(mhi, frame * tau)
+
+            tau += steps_brightness
+
         # Save the frame as an image
         folder_name = f"{self.save_path}_{duration}"
         if not os.path.exists(folder_name):
             os.makedirs(folder_name)
-        output_path = os.path.join(folder_name, f"{file_name}_{frame_number}.png")
-        cv2.imwrite(output_path, history_display)
+        output_path = os.path.join(folder_name, f"{file_name}_{end_frame}.png")
+        cv2.imwrite(output_path, mhi)
         
-        # Release resources
-        cap.release()
-        cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     gen_mot = MotionGenerator(save_path="test")
-    gen_mot.motion_history_image()
+    frames, end_frame = gen_mot.get_frames()
+
+    
+    gen_mot.motion_history_image(
+        gray_images=frames,
+        duration=5,
+        end_frame=end_frame
+    )
