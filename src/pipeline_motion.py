@@ -83,7 +83,7 @@ def mhi_duration(duration: int = 5):
         # Time format to seconds, needed as opencv only read seconds
         df['time_start_seconds'] = df['time_start'].apply(lambda x: pd.Timedelta(x).seconds)
         df['time_end_seconds'] = df['time_end'].apply(lambda x: pd.Timedelta(x).seconds)
-        df['random_time_start_seconds'] = df['random_time_start_seconds'].apply(lambda x: pd.Timedelta(x).seconds)
+        df['random_time_start_seconds'] = df['random_time_start'].apply(lambda x: pd.Timedelta(x).seconds)
 
 
         # Generate motion history image based on random start time between defined start time to defined end time minus duration
