@@ -5,8 +5,9 @@ import pafy
 import os
 
 class MotionGenerator:
-    def __init__(self, save_path):
+    def __init__(self, save_path, duration):
         self.save_path = save_path
+        self.duration = duration
 
     def random_motion_time(self, df: pd.DataFrame) -> pd.DataFrame:
         # Check if required columns exist
@@ -25,7 +26,7 @@ class MotionGenerator:
 
         
         # Generate random seconds between start and end
-        df['random_seconds'] = np.random.uniform(df['start_seconds'], df['mid_seconds'])
+        df['random_seconds'] = np.random.uniform(df['start_seconds'], df['end_seconds'] - self.duration)
         
         # Convert random seconds to time format
         df['random_time'] = pd.to_datetime(df["random_seconds"], unit='s').dt.strftime("%H:%M:%S")
@@ -87,7 +88,6 @@ class MotionGenerator:
     def motion_history_image(
             self, 
             gray_images: list,
-            duration: int,
             end_frame: int,
             file_name='experiment_abn_frame'):
         
@@ -112,20 +112,21 @@ class MotionGenerator:
             tau += steps_brightness
 
         # Save the frame as an image
-        folder_name = f"{self.save_path}_{duration}"
+        parent_folder = f"{self.save_path}"
+        folder_name = os.path.join(parent_folder, f"{self.duration}_seconds")
         if not os.path.exists(folder_name):
             os.makedirs(folder_name)
         output_path = os.path.join(folder_name, f"{file_name}_{end_frame}.png")
+        print(f"Snapshot at {end_frame} frame saved to {output_path}")
         cv2.imwrite(output_path, mhi)
         
 
 if __name__ == "__main__":
-    gen_mot = MotionGenerator(save_path="test")
+    gen_mot = MotionGenerator(save_path="test", duration=5)
     frames, end_frame = gen_mot.get_frames()
 
     
     gen_mot.motion_history_image(
         gray_images=frames,
-        duration=5,
         end_frame=end_frame
     )

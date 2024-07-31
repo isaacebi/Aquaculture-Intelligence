@@ -13,8 +13,8 @@ except:
     print('Running through Jupyter Notebooks')
 
 
-    
-def mhi_60s():
+# Generate full 60 seconds
+def generate_full_mhi():
     # Hard coded path
     DATA_FOLDER = GetPath().shared_data()
     LOCAL_DATA_FOLDER = GetPath().local_data()
@@ -53,6 +53,8 @@ def mhi_60s():
             file_name=f"{x['experiment']}_{x['ABN']}"
         ), axis=1)
 
+
+# Generate specific time duration mhi
 def mhi_duration(duration: int = 5):
     # Hard coded path
     DATA_FOLDER = GetPath().shared_data()
@@ -68,7 +70,7 @@ def mhi_duration(duration: int = 5):
     VIDEO_PATHS = GetPath().abnormal_path()
 
     # Initiate Motion Generator
-    gen_mot = MotionGenerator(save_path=OUTPUT_PATH)
+    gen_mot = MotionGenerator(save_path=OUTPUT_PATH, duration=duration)
 
     for i in range(3):
         exp_name = f"ABN_B{i+1}"
@@ -88,7 +90,6 @@ def mhi_duration(duration: int = 5):
                 time_start=x['time_start_seconds'],
                 time_end=x['time_start_seconds'] + duration
             )[0],
-            duration=duration,
             end_frame=gen_mot.get_frames(
                 video_path=VIDEO_PATHS[i],
                 time_start=x['time_start_seconds'],
