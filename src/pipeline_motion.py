@@ -111,4 +111,4 @@ def mhi_duration(duration: int = 5, iterGen: int = 5):
             ), axis=1)
 
 if __name__ == "__main__":
-    mhi_duration(duration=5, iterGen=5)
+    mhi_duration(duration=10, iterGen=5)
