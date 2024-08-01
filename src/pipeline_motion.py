@@ -1,8 +1,9 @@
 import os
 import cv2
 import uuid
-import pandas as pd
+import argparse
 import numpy as np
+import pandas as pd
 
 try:
     from set_path import GetPath
@@ -57,7 +58,7 @@ def generate_full_mhi():
 
 
 # Generate specific time duration mhi
-def mhi_duration(duration: int = 5, iterGen: int = 5):
+def mhi_duration(duration: int = 5, iterGen: int = 5, interval_frame: int = 15):
     # Hard coded path
     DATA_FOLDER = GetPath().shared_data()
     LOCAL_DATA_FOLDER = GetPath().local_data()
@@ -72,7 +73,7 @@ def mhi_duration(duration: int = 5, iterGen: int = 5):
     VIDEO_PATHS = GetPath().abnormal_path()
 
     # Initiate Motion Generator
-    gen_mot = MotionGenerator(save_path=OUTPUT_PATH, duration=duration)
+    gen_mot = MotionGenerator(save_path=OUTPUT_PATH, duration=duration, interval_frame=interval_frame)
 
     for gen in range(iterGen):
         for i in range(3):
@@ -111,4 +112,17 @@ def mhi_duration(duration: int = 5, iterGen: int = 5):
             ), axis=1)
 
 if __name__ == "__main__":
-    mhi_duration(duration=10, iterGen=5)
+    parser = argparse.ArgumentParser(
+        description="Motion History Generation based on input duration, iteration generation, and interval frame"
+    )
+    parser.add_argument("--duration", type=int, default=5, help="Enter the MHI generation duration")
+    parser.add_argument("--generation", type=int, default=5, help="Enter the MHI number generation")
+    parser.add_argument("--interval", type=int, default=15, help="Enter the interval frame for MHI")
+    args = parser.parse_args()
+
+    # reassign
+    duration = args.duration
+    generation = args.generation
+    interval = args.interval
+
+    mhi_duration(duration=duration, iterGen=generation, interval_frame=interval)
