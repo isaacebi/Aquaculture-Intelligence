@@ -86,7 +86,7 @@ def mhi_duration(duration: int = 5, iterGen: int = 5):
 
             dfSample['experiment'] = exp_name
             dfSample['random_time_start'] = gen_mot.random_motion_time(
-                dfSample=dfSample
+                df=dfSample
             )
             
             # Time format to seconds, needed as opencv only read seconds
