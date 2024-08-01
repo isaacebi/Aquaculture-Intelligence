@@ -5,9 +5,10 @@ import pafy
 import os
 
 class MotionGenerator:
-    def __init__(self, save_path, duration):
+    def __init__(self, save_path, duration, interval_frame: int = 15):
         self.save_path = save_path
         self.duration = duration
+        self.interval_frame = interval_frame
 
     def random_motion_time(self, df: pd.DataFrame) -> pd.DataFrame:
         # Check if required columns exist
@@ -79,7 +80,7 @@ class MotionGenerator:
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
             # Collect frames every interval
-            if frame_number % interval == 0:
+            if frame_number % self.interval_frame == 0:
                 frames.append(gray)
 
         return frames, end_frame
