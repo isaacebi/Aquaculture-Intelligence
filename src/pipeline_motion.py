@@ -13,6 +13,8 @@ except:
     print('Running through Jupyter Notebooks')
 
 
+RANDOM_STATE = 42
+
 # Generate full 60 seconds
 def generate_full_mhi():
     # Hard coded path
@@ -36,17 +38,17 @@ def generate_full_mhi():
 
     for i in range(3):
         exp_name = f"ABN_B{i+1}"
-        df = pd.read_csv(eval(f"ABN_B{i+1}_TIME"))
-        df['experiment'] = exp_name
-        df['random_time_start'] = gen_mot.full_motion_time(
-            df=df
+        dfSample = pd.read_csv(eval(f"ABN_B{i+1}_TIME"))
+        dfSample['experiment'] = exp_name
+        dfSample['random_time_start'] = gen_mot.full_motion_time(
+            dfSample=dfSample
         )
         
         # Time format to seconds, needed as opencv only read seconds
-        df['time_start_seconds'] = df['time_start'].apply(lambda x: pd.Timedelta(x).seconds)
-        df['time_end_seconds'] = df['time_end'].apply(lambda x: pd.Timedelta(x).seconds)
+        dfSample['time_start_seconds'] = dfSample['time_start'].apply(lambda x: pd.Timedelta(x).seconds)
+        dfSample['time_end_seconds'] = dfSample['time_end'].apply(lambda x: pd.Timedelta(x).seconds)
 
-        df.apply(lambda x: gen_mot.motion_history_image(
+        dfSample.apply(lambda x: gen_mot.motion_history_image(
             video_path=VIDEO_PATHS[i],
             time_start=x['time_start_seconds'],
             time_end=x['time_end_seconds'],
@@ -55,7 +57,7 @@ def generate_full_mhi():
 
 
 # Generate specific time duration mhi
-def mhi_duration(duration: int = 5):
+def mhi_duration(duration: int = 5, iterGen: int = 5):
     # Hard coded path
     DATA_FOLDER = GetPath().shared_data()
     LOCAL_DATA_FOLDER = GetPath().local_data()
@@ -72,34 +74,41 @@ def mhi_duration(duration: int = 5):
     # Initiate Motion Generator
     gen_mot = MotionGenerator(save_path=OUTPUT_PATH, duration=duration)
 
-    for i in range(3):
-        exp_name = f"ABN_B{i+1}"
-        df = pd.read_csv(eval(f"ABN_B{i+1}_TIME"))
-        df['experiment'] = exp_name
-        df['random_time_start'] = gen_mot.random_motion_time(
-            df=df
-        )
-        
-        # Time format to seconds, needed as opencv only read seconds
-        df['time_start_seconds'] = df['time_start'].apply(lambda x: pd.Timedelta(x).seconds)
-        df['time_end_seconds'] = df['time_end'].apply(lambda x: pd.Timedelta(x).seconds)
-        df['random_time_start_seconds'] = df['random_time_start'].apply(lambda x: pd.Timedelta(x).seconds)
+    for gen in range(iterGen):
+        for i in range(3):
+            exp_name = f"ABN_B{i+1}"
+            df = pd.read_csv(eval(f"ABN_B{i+1}_TIME"))
+
+            # Resampling
+            dfSample = df.sample(frac=1, replace=True, random_state=RANDOM_STATE)
+            # Message
+            print(f"{len(dfSample)} picture will be generated for MHI with duration of {duration}")
+
+            dfSample['experiment'] = exp_name
+            dfSample['random_time_start'] = gen_mot.random_motion_time(
+                dfSample=dfSample
+            )
+            
+            # Time format to seconds, needed as opencv only read seconds
+            dfSample['time_start_seconds'] = dfSample['time_start'].apply(lambda x: pd.Timedelta(x).seconds)
+            dfSample['time_end_seconds'] = dfSample['time_end'].apply(lambda x: pd.Timedelta(x).seconds)
+            dfSample['random_time_start_seconds'] = dfSample['random_time_start'].apply(lambda x: pd.Timedelta(x).seconds)
 
 
-        # Generate motion history image based on random start time between defined start time to defined end time minus duration
-        df.apply(lambda x: gen_mot.motion_history_image(
-            gray_images = gen_mot.get_frames(
-                video_path = VIDEO_PATHS[i],
-                time_start = x['random_time_start_seconds'],
-                time_end = x['random_time_start_seconds'] + duration
-            )[0],
-            end_frame = gen_mot.get_frames(
-                video_path = VIDEO_PATHS[i],
-                time_start = x['random_time_start_seconds'],
-                time_end = x['random_time_start_seconds'] + duration
-            )[1],
-            file_name = f"{x['experiment']}_{x['ABN']}"
-        ), axis=1)
+            # Generate motion history image based on random start time between defined start time to defined end time minus duration
+            dfSample.apply(lambda x: gen_mot.motion_history_image(
+                gray_images = gen_mot.get_frames(
+                    video_path = VIDEO_PATHS[i],
+                    time_start = x['random_time_start_seconds'],
+                    time_end = x['random_time_start_seconds'] + duration
+                )[0],
+                end_frame = gen_mot.get_frames(
+                    video_path = VIDEO_PATHS[i],
+                    time_start = x['random_time_start_seconds'],
+                    time_end = x['random_time_start_seconds'] + duration
+                )[1],
+                file_name = f"{x['experiment']}_{x['ABN']}"
+            ), axis=1)
 
 if __name__ == "__main__":
-    mhi_duration(duration=5)
+    mhi_duration(duration=5, iterGen=5)
