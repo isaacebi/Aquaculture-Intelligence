@@ -123,7 +123,7 @@ class MotionGenerator:
         
 
 if __name__ == "__main__":
-    gen_mot = MotionGenerator(save_path="test", duration=5)
+    gen_mot = MotionGenerator(save_path="test", duration=30, interval_frame=15)
     frames, end_frame = gen_mot.get_frames()
 
     
