@@ -96,7 +96,7 @@ class MotionGenerator:
 
         # Define step brightness
         steps_brightness = math.ceil(
-            (255 / 100) * len(frames)
+            100 / len(gray_images)
         )
         tau = steps_brightness
         
@@ -111,7 +111,7 @@ class MotionGenerator:
             _, frame = cv2.threshold(frame, 25, 255, cv2.THRESH_BINARY)
 
             # Draw to blank canvas
-            mhi = cv2.add(mhi, frame*tau)
+            mhi = cv2.add(mhi, frame//tau)
 
             tau += steps_brightness
 
