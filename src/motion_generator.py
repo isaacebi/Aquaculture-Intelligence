@@ -1,8 +1,8 @@
+import os
 import cv2
+import math
 import numpy as np
 import pandas as pd
-import pafy
-import os
 
 class MotionGenerator:
     def __init__(self, save_path, duration, interval_frame: int = 15):
@@ -94,7 +94,10 @@ class MotionGenerator:
         
         mhi = np.zeros_like(gray_images[0], dtype=np.uint8)
 
-        steps_brightness = 100 // len(gray_images)
+        # Define step brightness
+        steps_brightness = math.ceil(
+            (255 / 100) * len(frames)
+        )
         tau = steps_brightness
         
         for i in range(len(gray_images)-1):
@@ -108,7 +111,7 @@ class MotionGenerator:
             _, frame = cv2.threshold(frame, 25, 255, cv2.THRESH_BINARY)
 
             # Draw to blank canvas
-            mhi = cv2.add(mhi, frame//tau)
+            mhi = cv2.add(mhi, frame*tau)
 
             tau += steps_brightness
 
