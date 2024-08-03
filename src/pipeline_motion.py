@@ -81,7 +81,7 @@ def mhi_duration(duration: int = 5, iterGen: int = 5, interval_frame: int = 15):
             df = pd.read_csv(eval(f"ABN_B{i+1}_TIME"))
 
             # Resampling
-            dfSample = df.sample(frac=1, replace=True, random_state=RANDOM_STATE)
+            dfSample = df.sample(frac=1, replace=True, random_state=RANDOM_STATE, weights='ABN')
             # Message
             print(f"{len(dfSample)} picture will be generated for MHI with duration of {duration}")
 
