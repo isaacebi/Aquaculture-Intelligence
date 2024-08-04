@@ -15,6 +15,7 @@ except:
 
 
 RANDOM_STATE = 42
+SAMPLE_SIZE = 50
 
 # Generate full 60 seconds
 def generate_full_mhi():
@@ -81,7 +82,10 @@ def mhi_duration(duration: int = 5, iterGen: int = 5, interval_frame: int = 15):
             df = pd.read_csv(eval(f"ABN_B{i+1}_TIME"))
 
             # Resampling
-            dfSample = df.sample(frac=1, replace=True, random_state=RANDOM_STATE, weights='ABN')
+            dfSample = df.groupby('ABN').apply(
+                lambda x: x.sample(SAMPLE_SIZE, replace=True)
+            ).reset_index(drop=True, inplace=True)
+
             # Message
             print(f"{len(dfSample)} picture will be generated for MHI with duration of {duration}")
 
