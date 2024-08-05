@@ -84,7 +84,7 @@ def mhi_duration(duration: int = 5, iterGen: int = 5, interval_frame: int = 15):
             # Resampling
             dfSample = df.groupby('ABN').apply(
                 lambda x: x.sample(SAMPLE_SIZE, replace=True)
-            ).reset_index(drop=True, inplace=True)
+            ).reset_index(drop=True)
 
             # Message
             print(f"{len(dfSample)} picture will be generated for MHI with duration of {duration}")
