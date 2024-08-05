@@ -194,3 +194,33 @@ class Fish_Dataset_Binary(Dataset):
 
         slice_mhi_dataset = MotionHistoryImage(experiment="B1")
         print(f"Experiment B1 total data: {len(slice_mhi_dataset)}")
+
+
+class FullMHI(Dataset):
+    def __init__(self, root_dir, transform=None):
+        self.root_dir = root_dir
+        self.transform = transform
+        self.labels = []
+        self.images = []
+        self.experiments = []
+
+        for data in os.listdir(self.root_dir):
+            self.labels.append(data.split("_")[2])
+            self.images.append(os.path.join(root_dir, data))
+            self.experiments.append(data.split("_")[1])
+
+    def __len__(self):
+        return len(self.labels)
+    
+    def __getitem__(self, idx):
+        image = self.images[idx]
+        image = cv2.imread(image)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+        if self.transform:
+            image = self.transform(image=image)['image']
+
+        label = self.labels[idx]
+        experiment = self.experiments[idx]
+
+        return experiment, label, image

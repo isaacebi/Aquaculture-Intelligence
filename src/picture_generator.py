@@ -4,13 +4,6 @@ import uuid
 import pandas as pd
 import numpy as np
 
-try:
-    from set_path import GetPath
-    print('Running through Python Script')
-except:
-    from src import GetPath
-    print('Running through Jupyter Notebooks')
-
 # Helper Function
 def time_to_seconds(time_str):
     h, m, s = map(int, time_str.split(':'))
@@ -67,7 +60,7 @@ class PictureGenerator:
         return df['random_time']
 
 
-    def take_snapshot(self, video_path, condition_level, time_seconds=0):
+    def take_snapshot(self, video_path, file_name, time_seconds=0):
         """
         Captures a snapshot from a video file or camera stream at a specified time.
         
@@ -105,9 +98,9 @@ class PictureGenerator:
             return False
         
         # Save the frame as an image
-        output_path = os.path.join(self.save_path, f"{condition_level}_{frame_number}")
-        if not os.path.exists(output_path):
-            os.makedirs(output_path)
+        if not os.path.exists(self.save_path):
+            os.makedirs(self.save_path)
+        output_path = os.path.join(self.save_path, f"{file_name}_{frame_number}.png")
         cv2.imwrite(output_path, frame)
         
         # Release the video capture object
@@ -115,48 +108,3 @@ class PictureGenerator:
         
         print(f"Snapshot at {time_seconds} seconds saved to {output_path}")
         return True
-    
-def main():
-    # Hard coded path
-    DATA_FOLDER = GetPath().data()
-    RANDOM_TIME_FOLDER = os.path.join(DATA_FOLDER, 'random_time')
-    ABN_B1_TIME = os.path.join(RANDOM_TIME_FOLDER, 'abnormal_b1.csv')
-    ABN_B2_TIME = os.path.join(RANDOM_TIME_FOLDER, 'abnormal_b2.csv')
-    ABN_B3_TIME = os.path.join(RANDOM_TIME_FOLDER, 'abnormal_b3.csv')
-    OUTPUT_PATH = os.path.join(DATA_FOLDER, 'raw', 'abnormal')
-
-    # Videos path
-    abn_vids = GetPath().abnormal_path()
-
-    #
-    pic_gen = PictureGenerator(save_path=OUTPUT_PATH)
-
-    df = pd.DataFrame()
-
-    for i in range(3):
-        exp_name = f"ABN_B{i+1}"
-        dfTemp = pd.read_csv(eval(f"ABN_B{i+1}_TIME"))
-        dfTemp['experiment'] = exp_name
-        dfTemp['random_time'] = pic_gen.time_to_snapshot(
-            df=dfTemp
-        )
-
-        vid_path = abn_vids[i]
-        dfTemp.apply(lambda x: pic_gen.take_snapshot(
-            video_path=vid_path,
-            condition_level=exp_name,
-            time_seconds=x
-        ))
-
-        df = pd.concat([df, dfTemp])
-
-
-    # History
-    file_uuid = str(uuid.uuid4())
-    rt_csv = os.path.join(DATA_FOLDER, 'random_time', f'randomTime_{file_uuid}.csv')
-    df.to_csv(rt_csv)
-
-    return df
-
-if __name__ == "__main__":
-    main()

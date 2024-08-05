@@ -2,17 +2,21 @@ import os
 
 class GetPath:
     def __init__(self):
-        self.current_path = self.set_current_path()
+        self.shared_path = self.set_shared_path()
 
-    def data(self, fileName='data'):
-        if fileName in os.listdir(self.current_path):
-            target_folder = os.path.join(self.current_path, fileName)
+    def local_data(self):
+        return os.getcwd()
+
+    # TODO: Need to revise the recursive function
+    def shared_data(self, fileName='data'):
+        if fileName in os.listdir(self.shared_path):
+            target_folder = os.path.join(self.shared_path, fileName)
             print(f"--- Defined Datapath \n{target_folder}")
             return target_folder
         
         print(f"--- Moving Project Path Upward")
-        self.current_path = os.path.dirname(self.current_path)
-        return self.data()
+        self.shared_path = os.path.dirname(self.shared_path)
+        return self.shared_data()
     
     def abnormal_path(self) -> list:
         # TODO: File structure need to be change in the future
@@ -23,7 +27,7 @@ class GetPath:
         ABN_B3 = os.path.join(ABNORMAL_FOLDER, 'abnormal', 'B3', '2023-10-26 12-48-44.mp4')
         return [ABN_B1, ABN_B2, ABN_B3]
     
-    def set_current_path(self):
+    def set_shared_path(self):
         # Hard coded path
         LAB_PATH = "D:/fish_behavior"
         # Check if this run on lab
@@ -35,4 +39,4 @@ class GetPath:
 
 if __name__ == "__main__":
     pathing = GetPath()
-    datapath = pathing.data()
+    datapath = pathing.shared_data()
