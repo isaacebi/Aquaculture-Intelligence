@@ -27,6 +27,13 @@ class GetPath:
         ABN_B3 = os.path.join(ABNORMAL_FOLDER, 'abnormal', 'B3', '2023-10-26 12-48-44.mp4')
         return [ABN_B1, ABN_B2, ABN_B3]
     
+    def normal_path(self) -> list:
+        NORMAL_FOLDER = "D:/david's experiment/manuel observation video"
+        NORM_B1 = os.path.join(NORMAL_FOLDER, 'normal', 'B1', '2023-09-03 (12h day to night).mp4')
+        NORM_B2 = os.path.join(NORMAL_FOLDER, 'normal', 'B2', '2023-09-11 24h (start at 12pm).mp4')
+        NORM_B3 = os.path.join(NORMAL_FOLDER, 'normal', 'B3', '2023-09-16 00-00-18.mp4')
+        return [NORM_B1, NORM_B2, NORM_B3]
+
     def set_shared_path(self):
         # Hard coded path
         LAB_PATH = "D:/fish_behavior"
