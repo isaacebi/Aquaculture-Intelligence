@@ -15,7 +15,7 @@ except:
 
 
 RANDOM_STATE = 42
-SAMPLE_SIZE = 50
+SAMPLE_SIZE = 20
 
 # Generate full 60 seconds
 def generate_full_mhi():
@@ -30,7 +30,7 @@ def generate_full_mhi():
     OUTPUT_PATH = os.path.join(DATA_FOLDER, 'preprocess', 'mhi')
 
     # hardcoded path
-    VIDEO_PATHS = GetPath().abnormal_path()
+    ABNORMAL_VIDEO_PATHS = GetPath().abnormal_path()
 
     # Videos path
     abn_vids = GetPath().abnormal_path()
@@ -51,7 +51,7 @@ def generate_full_mhi():
         dfSample['time_end_seconds'] = dfSample['time_end'].apply(lambda x: pd.Timedelta(x).seconds)
 
         dfSample.apply(lambda x: gen_mot.motion_history_image(
-            video_path=VIDEO_PATHS[i],
+            video_path=ABNORMAL_VIDEO_PATHS[i],
             time_start=x['time_start_seconds'],
             time_end=x['time_end_seconds'],
             file_name=f"{x['experiment']}_{x['ABN']}"
@@ -71,18 +71,24 @@ def mhi_duration(duration: int = 5, iterGen: int = 5, interval_frame: int = 15):
     OUTPUT_PATH = os.path.join(DATA_FOLDER, 'preprocess', 'mhi')
 
     # hardcoded path
-    VIDEO_PATHS = GetPath().abnormal_path()
+    ABNORMAL_VIDEO_PATHS = GetPath().abnormal_path()
+    NORMAL_VIDEO_PATHS = GetPath().normal_path()
+
 
     # Initiate Motion Generator
     gen_mot = MotionGenerator(save_path=OUTPUT_PATH, duration=duration, interval_frame=interval_frame)
+
 
     for gen in range(iterGen):
         for i in range(3):
             exp_name = f"ABN_B{i+1}"
             df = pd.read_csv(eval(f"ABN_B{i+1}_TIME"))
 
+            # Remove level 0 from 2h video
+            dfSample = df.drop(index=df[df['ABN']==0].index)
+
             # Resampling
-            dfSample = df.groupby('ABN').apply(
+            dfSample = dfSample.groupby('ABN').apply(
                 lambda x: x.sample(SAMPLE_SIZE, replace=True)
             ).reset_index(drop=True)
 
@@ -103,17 +109,36 @@ def mhi_duration(duration: int = 5, iterGen: int = 5, interval_frame: int = 15):
             # Generate motion history image based on random start time between defined start time to defined end time minus duration
             dfSample.apply(lambda x: gen_mot.motion_history_image(
                 gray_images = gen_mot.get_frames(
-                    video_path = VIDEO_PATHS[i],
+                    video_path = ABNORMAL_VIDEO_PATHS[i],
                     time_start = x['random_time_start_seconds'],
                     time_end = x['random_time_start_seconds'] + duration
                 )[0],
                 end_frame = gen_mot.get_frames(
-                    video_path = VIDEO_PATHS[i],
+                    video_path = ABNORMAL_VIDEO_PATHS[i],
                     time_start = x['random_time_start_seconds'],
                     time_end = x['random_time_start_seconds'] + duration
                 )[1],
                 file_name = f"{x['experiment']}_{x['ABN']}"
             ), axis=1)
+
+            # Specific level 0 from normal video
+            end_time = 12*60*60 - duration
+            start_times = np.random.choice(np.arange(end_time), size=(20))
+
+            for sample in range(SAMPLE_SIZE):
+                gray_images, end_frame = gen_mot.get_frames(
+                    video_path=NORMAL_VIDEO_PATHS[i],
+                    time_start=start_times[sample],
+                    time_end=start_times[sample] + duration
+                )
+
+                gen_mot.motion_history_image(
+                    gray_images=gray_images,
+                    end_frame=end_frame,
+                    file_name=f"ABN_0"
+                )
+
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
