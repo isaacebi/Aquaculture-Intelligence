@@ -122,7 +122,7 @@ def mhi_duration(duration: int = 5, iterGen: int = 5, interval_frame: int = 15):
             ), axis=1)
 
             # Specific level 0 from normal video
-            end_time = 12*60*60 - duration
+            end_time = 11*60*60 - duration
             start_times = np.random.choice(np.arange(end_time), size=(20))
 
             for sample in range(SAMPLE_SIZE):
