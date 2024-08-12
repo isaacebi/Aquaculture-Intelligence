@@ -135,7 +135,7 @@ def mhi_duration(duration: int = 5, iterGen: int = 5, interval_frame: int = 15):
                 gen_mot.motion_history_image(
                     gray_images=gray_images,
                     end_frame=end_frame,
-                    file_name=f"ABN_0"
+                    file_name=f"ABN_B{i+1}_0"
                 )
 
 
