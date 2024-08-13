@@ -4,8 +4,19 @@ class GetPath:
     def __init__(self):
         self.shared_path = self.set_shared_path()
 
-    def local_data(self):
+    def repo_path(self):
         return os.getcwd()
+
+    # Get data from repo
+    def repo_data(self, fileName='data'):
+        if fileName in os.listdir(self.shared_path):
+            target_folder = os.path.join(self.shared_path, fileName)
+            print(f"--- Defined Datapath \n{target_folder}")
+            return target_folder
+        
+        print(f"--- Moving Project Path Upward")
+        self.shared_path = os.path.dirname(self.shared_path)
+        return self.repo_data()
 
     # TODO: Need to revise the recursive function
     def shared_data(self, fileName='data'):
