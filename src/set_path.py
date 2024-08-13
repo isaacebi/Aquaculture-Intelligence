@@ -3,19 +3,20 @@ import os
 class GetPath:
     def __init__(self):
         self.shared_path = self.set_shared_path()
+        self.repo_path = self.set_repo_path()
 
-    def repo_path(self):
+    def set_repo_path(self):
         return os.getcwd()
 
     # Get data from repo
     def repo_data(self, fileName='data'):
-        if fileName in os.listdir(self.shared_path):
-            target_folder = os.path.join(self.shared_path, fileName)
+        if fileName in os.listdir(self.repo_path):
+            target_folder = os.path.join(self.repo_path, fileName)
             print(f"--- Defined Datapath \n{target_folder}")
             return target_folder
         
         print(f"--- Moving Project Path Upward")
-        self.shared_path = os.path.dirname(self.shared_path)
+        self.repo_path = os.path.dirname(self.repo_path)
         return self.repo_data()
 
     # TODO: Need to revise the recursive function
