@@ -21,7 +21,7 @@ SAMPLE_SIZE = 20
 def generate_full_mhi():
     # Hard coded path
     DATA_FOLDER = GetPath().shared_data()
-    LOCAL_DATA_FOLDER = GetPath().local_data()
+    LOCAL_DATA_FOLDER = GetPath().set_repo_path()
 
     RANDOM_TIME_FOLDER = os.path.join(LOCAL_DATA_FOLDER, 'data', 'random_time')
     ABN_B1_TIME = os.path.join(RANDOM_TIME_FOLDER, 'abnormal_b1.csv')
@@ -62,7 +62,7 @@ def generate_full_mhi():
 def mhi_duration(duration: int = 5, iterGen: int = 5, interval_frame: int = 15):
     # Hard coded path
     DATA_FOLDER = GetPath().shared_data()
-    LOCAL_DATA_FOLDER = GetPath().local_data()
+    LOCAL_DATA_FOLDER = GetPath().set_repo_path()
 
     RANDOM_TIME_FOLDER = os.path.join(LOCAL_DATA_FOLDER, 'data', 'random_time')
     ABN_B1_TIME = os.path.join(RANDOM_TIME_FOLDER, 'abnormal_b1.csv')
