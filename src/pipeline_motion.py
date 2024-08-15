@@ -16,6 +16,7 @@ except:
 
 RANDOM_STATE = 42
 SAMPLE_SIZE = 20
+np.random.seed(seed=RANDOM_STATE)
 
 # Generate full 60 seconds
 def generate_full_mhi():
