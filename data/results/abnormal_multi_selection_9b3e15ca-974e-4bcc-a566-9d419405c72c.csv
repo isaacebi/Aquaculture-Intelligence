@@ -1,0 +1,2 @@
+precision,recall,f1-score,support,training_batch,model,img_size,windows_time
+0.12809328611989812,0.1391682394116175,0.12400508373579942,876.0,B1B2,Logistic Regression,8,10_seconds
